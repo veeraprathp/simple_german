@@ -14,6 +14,13 @@ class Settings(BaseSettings):
     
     # Redis Configuration
     REDIS_URL: str = "redis://redis:6379/0"
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
+    REDIS_PASSWORD: Optional[str] = None
+    REDIS_DB: int = 0
+    REDIS_MAX_CONNECTIONS: int = 20
+    REDIS_CONNECTION_TIMEOUT: int = 5
+    REDIS_SOCKET_TIMEOUT: int = 5
     
     # Security Configuration
     SECRET_KEY: str = "your-secret-key-change-in-production"

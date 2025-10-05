@@ -1,19 +1,50 @@
 import time
 import hashlib
 import httpx
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from app.config import settings
 from app.schemas.translation import SimplifyRequest, SimplifyResponse
+from app.services.cache import RedisCacheManager, LRUCacheStrategy, MultiLayerCacheStrategy
 
 
 class TranslationService:
-    def __init__(self):
+    def __init__(self, cache_manager: Optional[RedisCacheManager] = None):
         self.hf_api_url = f"https://api-inference.huggingface.co/models/{settings.MODEL_NAME}"
         self.hf_token = settings.HF_API_TOKEN
+        
+        # Initialize caching
+        if cache_manager:
+            self.cache_manager = cache_manager
+            self.l1_cache = LRUCacheStrategy(max_size=1000)
+            self.multi_layer_cache = MultiLayerCacheStrategy(self.l1_cache, cache_manager)
+        else:
+            self.cache_manager = None
+            self.multi_layer_cache = None
     
     async def simplify_text(self, request: SimplifyRequest) -> SimplifyResponse:
-        """Simplify German text using Hugging Face model"""
+        """Simplify German text using Hugging Face model with caching"""
         start_time = time.time()
+        
+        # Check cache first if available
+        if self.multi_layer_cache:
+            cache_key = self.cache_manager.generate_key(
+                settings.MODEL_VERSION,
+                "default",  # glossary_version
+                request.mode,
+                request.input
+            )
+            
+            cached_result = await self.multi_layer_cache.get(cache_key)
+            if cached_result:
+                processing_time = int((time.time() - start_time) * 1000)
+                return SimplifyResponse(
+                    job_id=str(hashlib.md5(request.input.encode()).hexdigest()[:8]),
+                    status="done",
+                    model_version=settings.MODEL_VERSION,
+                    output=cached_result.get('output', ''),
+                    processing_time_ms=processing_time,
+                    cache_hit=True
+                )
         
         # Prepare input for model
         prompt = self._prepare_prompt(request.input, request.mode)
@@ -52,6 +83,15 @@ class TranslationService:
                 output = self._clean_output(output, request.input)
                 
                 processing_time = int((time.time() - start_time) * 1000)
+                
+                # Cache the result if available
+                if self.multi_layer_cache:
+                    cache_data = {
+                        'output': output,
+                        'model_version': settings.MODEL_VERSION,
+                        'processing_time_ms': processing_time
+                    }
+                    await self.multi_layer_cache.set(cache_key, cache_data, ttl=3600*24)
                 
                 return SimplifyResponse(
                     job_id=str(hashlib.md5(request.input.encode()).hexdigest()[:8]),

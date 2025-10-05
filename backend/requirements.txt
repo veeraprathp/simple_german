@@ -21,6 +21,13 @@ requests==2.31.0
 # Caching
 redis==5.0.1
 
+# HTML Processing
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# System Monitoring
+psutil==5.9.6
+
 # Utilities
 python-dotenv==1.0.0
 uuid==1.30
