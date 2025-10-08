@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>German Text Simplifier</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🇩🇪 German Simplifier</h1>
+      <p class="subtitle">Make German text easier to read</p>
+    </div>
+
+    <div class="status-bar">
+      <div class="status">
+        <span class="status-indicator" id="status-indicator">●</span>
+        <span class="status-text" id="status-text">Ready</span>
+      </div>
+    </div>
+
+    <div class="mode-selector">
+      <label class="mode-label">Translation Mode:</label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="mode" value="easy" checked>
+          <span>Einfache Sprache</span>
+          <small>Easy German</small>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="mode" value="light">
+          <span>Leichte Sprache</span>
+          <small>Simple German</small>
+        </label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="simplify-btn" class="btn btn-primary">
+        <span class="btn-icon">✨</span>
+        Simplify This Page
+      </button>
+      <button id="restore-btn" class="btn btn-secondary">
+        <span class="btn-icon">↩️</span>
+        Restore Original
+      </button>
+    </div>
+
+    <div class="stats-section">
+      <h3>Statistics</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-label">Texts Simplified:</span>
+          <span class="stat-value" id="texts-count">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Cache Hits:</span>
+          <span class="stat-value" id="cache-hits">0</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Processing Time:</span>
+          <span class="stat-value" id="processing-time">0ms</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <button id="settings-btn" class="btn-link">
+        ⚙️ Settings
+      </button>
+      <button id="clear-cache-btn" class="btn-link">
+        🗑️ Clear Cache
+      </button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
